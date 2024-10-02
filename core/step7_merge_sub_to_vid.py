@@ -12,8 +12,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.step1_ytdlp import find_video_files
 
 # 字体相关设置
-SRC_FONT_SIZE = 16
-TRANS_FONT_SIZE = 18
+SRC_FONT_SIZE = 14
+TRANS_FONT_SIZE = 16
 # 使用 SmileySans-Oblique.otf 字体
 FONT_NAME = 'Smiley Sans Oblique'  # 字体名称，根据 fc-list 的输出
 TRANS_FONT_NAME = 'Smiley Sans Oblique'
