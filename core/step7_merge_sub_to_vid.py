@@ -14,21 +14,23 @@ from core.step1_ytdlp import find_video_files
 # 字体相关设置
 SRC_FONT_SIZE = 16
 TRANS_FONT_SIZE = 18
-# 使用支持中文的字体名称
-FONT_NAME = 'Noto Sans CJK SC'
-TRANS_FONT_NAME = 'Noto Sans CJK SC'
-# 如果需要指定字体文件路径，可以使用 fontfile
-FONT_FILE = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
+# 使用 SmileySans-Oblique.otf 字体
+FONT_NAME = 'Smiley Sans Oblique'  # 字体名称，根据 fc-list 的输出
+TRANS_FONT_NAME = 'Smiley Sans Oblique'
+# 字体文件路径
+FONT_FILE = '/usr/share/fonts/truetype/SmileySans-Oblique.otf'
 
 # 字幕样式设置
-SRC_FONT_COLOR = '&HFFFFFF' 
-SRC_OUTLINE_COLOR = '&H000000'
+SRC_FONT_COLOR = '&HFFFFFF'        # 白色
+SRC_OUTLINE_COLOR = '&H000000'     # 黑色
 SRC_OUTLINE_WIDTH = 1
-SRC_SHADOW_COLOR = '&H80000000'
-TRANS_FONT_COLOR = '&H00FFFF'
-TRANS_OUTLINE_COLOR = '&H000000'
-TRANS_OUTLINE_WIDTH = 1 
-TRANS_BACK_COLOR = '&H33000000'
+SRC_SHADOW_COLOR = '&H80000000'    # 半透明黑色
+
+TRANS_FONT_COLOR = '&HFFFFFF'      # 白色
+TRANS_OUTLINE_COLOR = '&H000000'   # 黑色
+TRANS_OUTLINE_WIDTH = 1
+# 移除背景颜色
+# TRANS_BACK_COLOR = '&H33000000'  # 注释掉，不需要背景色
 
 def merge_subtitles_to_video():
     from config import RESOLUTION
@@ -37,11 +39,11 @@ def merge_subtitles_to_video():
     output_video = "output/output_video_with_subs.mp4"
     os.makedirs(os.path.dirname(output_video), exist_ok=True)
 
-    # Check resolution
+    # 检查分辨率
     if RESOLUTION == '0x0':
         rprint("[bold yellow]Warning: A 0-second black video will be generated as a placeholder as Resolution is set to 0x0.[/bold yellow]")
 
-        # Create a black frame
+        # 创建黑色帧
         frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(output_video, fourcc, 1, (1920, 1080))
@@ -67,10 +69,9 @@ def merge_subtitles_to_video():
         '-vf', (
             f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
             f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,"
-            # 对于第一个字幕文件
+            # 对于第一个字幕文件（源字幕）
             f"subtitles='{en_srt}':force_style='"
             f"FontSize={SRC_FONT_SIZE},"
-            # 使用 fontfile 指定字体文件路径
             f"fontfile={FONT_FILE},"
             f"PrimaryColour={SRC_FONT_COLOR},"
             f"OutlineColour={SRC_OUTLINE_COLOR},"
@@ -78,17 +79,17 @@ def merge_subtitles_to_video():
             f"ShadowColour={SRC_SHADOW_COLOR},"
             f"BorderStyle=1'"
             ','
-            # 对于第二个字幕文件
+            # 对于第二个字幕文件（翻译字幕）
             f"subtitles='{trans_srt}':force_style='"
             f"FontSize={TRANS_FONT_SIZE},"
             f"fontfile={FONT_FILE},"
             f"PrimaryColour={TRANS_FONT_COLOR},"
             f"OutlineColour={TRANS_OUTLINE_COLOR},"
             f"OutlineWidth={TRANS_OUTLINE_WIDTH},"
-            f"BackColour={TRANS_BACK_COLOR},"
+            f"BorderStyle=1,"        # 设置边框样式为1
+            f"Shadow=0,"             # 如果不需要阴影，设置为0
             f"Alignment=2,"
-            f"MarginV=25,"
-            f"BorderStyle=4'"
+            f"MarginV=25'"
         ),
         '-y',
         output_video
@@ -105,7 +106,7 @@ def merge_subtitles_to_video():
 
     try:
         for line in process.stdout:
-            print(line, end='')  # Print FFmpeg output in real-time
+            print(line, end='')  # 实时打印FFmpeg输出
 
         process.wait()
         if process.returncode == 0:
